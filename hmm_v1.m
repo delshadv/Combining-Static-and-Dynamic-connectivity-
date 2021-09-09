@@ -400,7 +400,7 @@ for ii = 1:length(freqbands)
             Hen_lc_sep = abs(Hen_lc_sep)
             
             
-            y1 = resample(Hen_lc_sep',20,D.fsample);
+            %y1 = resample(Hen_lc_sep',20,D.fsample);
             
             % Calculate Covariance Matrix
             cm = cov(Hen_lc_sep);
