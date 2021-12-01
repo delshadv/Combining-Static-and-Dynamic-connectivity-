@@ -557,16 +557,16 @@ options.BIGdelay = 5;
 options.BIGforgetrate = 0.7;
 options.BIGbase_weights = 0.9;
 
-[hmm, Gamma, ~, vpath, ~, ~, ~, ~, ~] = hmmmar (data',T',options);
+[hmm, Gamma, ~, vpath, ~, ~, fehist, feterms, rho] = hmmmar (data',T',options);
 
+save HMM_PCA_NC hmm Gamma Xi vpath GammaInit residuals fehist feterms rho
 %% HMM Dual for subject specific Gamma , HMM and states
 
 
 parfor sub=1:307
 
-    Hen_lc_sep = data{sub};
-    [hmm_s{sub},Gamma_s{sub},viterbi_s{sub}] = hmmdual(Hen_lc_sep,size(Hen_lc_sep,1),hmm);
-
+    [hmm_s{sub},Gamma_s{sub},viterbi_s{sub}] = hmmdual((data_new{sub}),...
+        size((data_new{sub}),1),hmm,Xi,residuals);
 end
 
 
@@ -575,16 +575,14 @@ end
 % Some useful information about the dynamics
 for sub = 1:307
     
-    
-    FO{sub} = getFractionalOccupancy( Gamma_f{sub}, T{sub},options, 2);
+    FO{sub} = getFractionalOccupancy( Gamma_s{sub}, T{sub},options, 2);
     % Interval Time is the time between subsequent visits to a state
-    IT = getStateIntervalTimes( Gamma_f{sub}, T{sub}, options,[]);
+    IT = getStateIntervalTimes( viterbi_s{sub}, T{sub}, options,[]);
     ITmerged{sub} = cellfun(@mean,IT);clear IT
     % Life Times (or Dwell Times) is the duration of visits to a state
-    LT = getStateLifeTimes( Gamma_f{sub}, T{sub}, []);
+    LT = getStateLifeTimes( viterbi_s{sub}, T{sub}, []);
     LTmerged{sub} = cellfun(@mean,LT); clear LT
-    
-    SwitchingRate{sub} =  getSwitchingRate(Gamma_f{sub},T{sub},options); % rate of switching between stats
+    SwitchingRate{sub} =  getSwitchingRate(Gamma_s{sub},T{sub},options); % rate of switching between stats
     
 end
 
